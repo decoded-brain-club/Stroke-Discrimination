@@ -1,0 +1,75 @@
+# Configuration file for Ischemic vs. Hemorrhagic Stroke Classification (ApFu-TPELGBM Replication)
+
+# --- DIRECTORIES ---
+data:
+  # Path to your raw EDF files, grouped by stroke type
+  raw_data_path: "data/raw_edf"
+  # Paths for processed feature matrices after ApFu extraction
+  training_features_path: "data/processed/train_features.npy"
+  validation_features_path: "data/processed/val_features.npy"
+  testing_features_path: "data/processed/test_features.npy"
+  
+model:
+  save_path: "data/models"
+  # Filename for the final LightGBM model after TPE optimization
+  model_filename: "tpeligible_final_model.txt"
+  best_model_filename: "best_tpe_trial_model.txt"
+  architecture: "LightGBM"
+
+# --- LOGGING & TRACKING ---
+logging:
+  log_path: "logs"
+  tensorboard_enabled: false # Not typically used for LightGBM
+  mlflow_enabled: true
+  mlflow_experiment_name: "Stroke_Classification_ApFu-TPELGBM"
+  # IMPORTANT: Change this to your local or remote MLflow tracking server URI
+  mlflow_tracking_uri: "http://15.204.86.137:5000" # Example URI
+  
+# --- TRAINING & OPTIMIZATION (TPE/LightGBM) ---
+training:
+  # TPE (Optuna) Hyperparameter Search Parameters
+  tpe_n_trials: 100 # Number of hyperparameter combinations to try
+  n_splits_cv: 5    # 5-fold cross-validation used within TPE
+  seed: 42
+  
+  # Parameters specific to the final LightGBM training (determined by TPE)
+  # These will be updated dynamically during the TPE optimization process
+  objective_metric: "f1_score" # Metric TPE will maximize (Paper used F1)
+  
+  # TPE Search Space Bounds for LightGBM
+  search_bounds:
+    num_leaves_min: 16
+    num_leaves_max: 256
+    learning_rate_min: 0.01
+    learning_rate_max: 0.2
+    max_depth_min: 3
+    max_depth_max: 10
+
+optimizer:
+  # LightGBM does not use a typical SGD/Adam optimizer, but its internal parameters
+  type: "LightGBM_Internal"
+  # Placeholder for optimal LightGBM parameters found by TPE
+  best_params: {}
+
+scheduler:
+  type: "None" # Not typically used with LightGBM
+
+# --- EEG PROCESSING (Based on Paper Section 2) ---
+processing:
+  # The paper's optimal segmentation length
+  epoch_duration: 1.0  # seconds
+  # We will use all available channels from the paper
+  selected_channels: ["C3", "C4", "CZ", "F3", "F4", "F7", "F8", "FZ", "FP1", "FP2", "O1", "O2", "P3", "P4", "T3", "T4", "T5", "T6"]
+  target_sfreq: 256  # Hz (The sampling rate used in the ZJU4H dataset)
+  
+# --- FILTERS (Based on Paper Section 2) ---
+filters:
+  low_cutoff: 1.0    # Hz (The paper's bandpass lower limit)
+  high_cutoff: 35.0  # Hz (The paper's bandpass upper limit)
+  notch_freq: 60.0   # Hz (Standard power line noise removal)
+
+# --- FEATURE EXTRACTION (ApFu) PARAMETERS (Based on Paper Section 3) ---
+features:
+  type: "ApFu"
+  m_embed_dim: 2       # Embedding dimension (m)
+  r_tolerance_factor: 0.2 # Tolerance (r) as a factor of std dev
