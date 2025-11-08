@@ -3,14 +3,14 @@
 # --- DIRECTORIES ---
 data:
   # Path to your raw EDF files, grouped by stroke type
-  raw_data_path: "data/raw_edf"
+  raw_data_path: "Z:/Data/TUH"
   # Paths for processed feature matrices after ApFu extraction
-  training_features_path: "data/processed/train_features.npy"
-  validation_features_path: "data/processed/val_features.npy"
-  testing_features_path: "data/processed/test_features.npy"
+  training_features_path: "Z:/Data/processed/train_features.npy"
+  validation_features_path: "Z:/Data/processed/val_features.npy"
+  testing_features_path: "Z:/Data/processed/test_features.npy"
   
 model:
-  save_path: "data/models"
+  save_path: "Z:/Data/models"
   # Filename for the final LightGBM model after TPE optimization
   model_filename: "tpeligible_final_model.txt"
   best_model_filename: "best_tpe_trial_model.txt"
